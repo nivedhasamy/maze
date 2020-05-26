@@ -5,6 +5,7 @@ var height = 400;
 var width = 400;
 var grid = [];
 var current;
+var stack = [];
 
 function setup() {
     let maze = document.getElementById('maze');
@@ -38,13 +39,22 @@ function draw() {
             next = current.checkNeighbours();
 
             if (!next) {
-                break;
+                if (stack.length > 0) {
+                    var cell = stack.pop();
+                    current = cell;
+                } else {
+                    break;
+                }
+            } else {
+                //step 1
+                next.visited = true;
+                removeWalls(current, next);
+
+                //step 2
+                stack.push(current);
+                //step 4
+                current = next;
             }
-            //step 1
-            next.visited = true;
-            removeWalls(current, next);
-            //step 4
-            current = next;
         }
         for (let i = 0; i < grid.length; i++) {
             grid[i].show();
