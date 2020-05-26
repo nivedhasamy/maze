@@ -31,23 +31,25 @@ function draw() {
         ctx.fillRect(0, 0, width, height);
         setup();
 
+
         current.visited = true;
-       
+
         while (1) {
-            current.show();
             next = current.checkNeighbours();
 
             if (!next) {
                 break;
             }
-
+            //step 1
             next.visited = true;
+            removeWalls(current, next);
+            //step 4
             current = next;
         }
-
         for (let i = 0; i < grid.length; i++) {
             grid[i].show();
         }
+
 
     } else {
         // canvas-unsupported code here
@@ -68,7 +70,8 @@ function Cell(i, j) {
     this.show = function() {
         var x = this.i * w;
         var y = this.j * w;
-
+        console.trace()
+        ctx.beginPath();
         //top
         if (this.walls[0]) {
             ctx.moveTo(x, y);
@@ -92,18 +95,26 @@ function Cell(i, j) {
 
         ctx.strokeStyle = "#fff";
         ctx.stroke();
-
+        ctx.closePath();
         //draw small rectangles
         if (this.visited) {
-            // ctx.beginPath();
-            ctx.rect(x, y, w - 1, w - 1);
-            //ctx.closePath();
-            ctx.fill()
+            ctx.rect(x, y, w, w);
+            ctx.fill();
         }
 
     }
 
+    // this.markVisit = function(){
+    //     this.visited = true;
+    //      let x = this.i * w;
+    //     let y = this.j * w;
+    //         // ctx.beginPath(); 
+    //         ctx.rect(x, y, w , w );           
+    //         ctx.fill();
+    //         // ctx.closePath();
 
+
+    // }
 
     this.checkNeighbours = function() {
         var neighbours = [];
@@ -137,4 +148,23 @@ function Cell(i, j) {
     }
 
 
+}
+
+function removeWalls(a, b) {
+    let x = a.i - b.i
+    if (x === 1) {
+        a.walls[3] = false;
+        b.walls[1] = false;
+    } else if (x === -1) {
+        a.walls[1] = false;
+        b.walls[3] = false;
+    }
+    let y = a.j - b.j;
+    if (y === 1) {
+        a.walls[0] = false;
+        b.walls[2] = false;
+    } else if (y === -1) {
+        a.walls[2] = false;
+        b.walls[0] = false;
+    }
 }
