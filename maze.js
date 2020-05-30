@@ -1,11 +1,16 @@
 var ctx
 var cols, rows;
-var w = 40;
-var height = 400;
-var width = 400;
+var w = 50;
+var height = 500;
+var width = 500;
 var grid = [];
 var current;
 var stack = [];
+
+//movement
+var sourceX = 0;
+var sourceY = 0;
+
 
 function setup() {
     let maze = document.getElementById('maze');
@@ -29,6 +34,7 @@ function draw() {
     if (maze.getContext) {
         ctx = maze.getContext('2d');
         ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
+        //ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, width, height);
         setup();
 
@@ -60,9 +66,11 @@ function draw() {
             grid[i].show();
         }
 
+        drawBall(sourceX,sourceY);
 
     } else {
         // canvas-unsupported code here
+        alert(`Browser doesn't support canvas!`)
     }
 }
 
@@ -76,7 +84,6 @@ function Cell(i, j) {
     this.j = j;
     this.walls = [true, true, true, true];
     this.visited = false;
-
     this.show = function() {
         var x = this.i * w;
         var y = this.j * w;
@@ -111,20 +118,9 @@ function Cell(i, j) {
             ctx.rect(x, y, w, w);
             ctx.fill();
         }
-
     }
 
-    // this.markVisit = function(){
-    //     this.visited = true;
-    //      let x = this.i * w;
-    //     let y = this.j * w;
-    //         // ctx.beginPath(); 
-    //         ctx.rect(x, y, w , w );           
-    //         ctx.fill();
-    //         // ctx.closePath();
 
-
-    // }
 
     this.checkNeighbours = function() {
         var neighbours = [];
@@ -178,3 +174,80 @@ function removeWalls(a, b) {
         b.walls[0] = false;
     }
 }
+
+function drawBall(x,y) {
+    ctx.beginPath();
+    ctx.arc(x+w / 2, y+w / 2, 10, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function eraseBall(x, y) {
+     ctx.beginPath();
+    ctx.arc(x+w / 2, y+w / 2, 10, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
+    ctx.fill();
+    ctx.closePath();
+
+}
+
+function moveSource(e) {
+
+    var nextX;
+    var nextY;
+    var canMove;
+    e = e || window.event;
+//instead of source use grid[] ; next grid -> top, rt, btm, left ; canMove -> check neightbour wall
+    debugger;
+    switch (e.keyCode) {
+        case 38: // arrow up key
+        case 87: // W key
+            nextX = sourceX;
+            nextY = sourceY - w;
+            break;
+        case 37: // arrow left key
+        case 65: // A key
+            nextX = sourceX - w;
+            nextY = sourceY;
+            break;
+        case 40: // arrow down key
+        case 83: // S key
+            nextX = sourceX;
+            nextY = sourceY + w;
+            break;
+        case 39: // arrow right key
+        case 68: // D key
+            nextX = sourceX + w;
+            nextY = sourceY;
+            break;
+        default:
+            return;
+
+    }
+//movingAllowed = canMoveTo(nextX, nextY);
+movingAllowed = 1;
+    if (movingAllowed === 1) {      // 1 means 'the rectangle can move'
+        drawBall(nextX, nextY);
+
+eraseBall(sourceX,sourceY)
+        sourceX = nextX;
+        sourceY = nextY;
+    }
+    else if (movingAllowed === 2) { // 2 means 'the rectangle reached the end point'
+       // clearInterval(intervalVar); // we'll set the timer later in this article
+      //  makeWhite(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.font = "40px Arial";
+        ctx.fillStyle = "blue";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Congratulations!", width / 2, height / 2);
+        window.removeEventListener("keydown", moveRect, true);
+    }
+
+}
+
+
+window.addEventListener("keydown", moveSource, true);
