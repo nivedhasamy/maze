@@ -1,3 +1,30 @@
 #maze {
-    border: 2px solid black;
+    border: 1px solid black;
+
+}
+
+#maze_output {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    font-family: cursive;
+}
+
+#gameIntro {
+    color: orange;
+    text-align: center;
+}
+
+p {
+    margin: 2px;
+}
+
+#instructions {
+    margin: 15px;
 }

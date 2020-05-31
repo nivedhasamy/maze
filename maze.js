@@ -1,8 +1,8 @@
 var ctx
 var cols, rows;
-var w = 50;
-var height = 500;
-var width = 500;
+var w = 60;
+var height = 600;
+var width = 600;
 var grid = [];
 var current;
 var stack = [];

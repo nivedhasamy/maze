@@ -1,13 +1,18 @@
 <head>
-<script type="application/javascript" src="maze.js"></script>
- <link rel="stylesheet" href="maze.css"/>
+    <script type="application/javascript" src="maze.js"></script>
+    <link rel="stylesheet" href="maze.css" />
 </head>
-<body onload="draw()">
-	<div id="maze_container">
-<!-- insert the maze HTML code here -->
-</div>
-<div id="maze_output">
-    <canvas id="maze" width="500" height="500"></canvas>
 
-  Images from <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> 
+<body onload="draw()">
+    <div id="maze_output">
+        <h3 id='gameIntro'> Our bunny is hungry! Help her find its way to the yum carrots. </h3>
+        <canvas id="maze" width="600" height="600"></canvas>
+        <div id='instructions'>
+            <p>Up - &#x2B06; or 'W'</p>
+            <p> Right - &#x27A1; or 'D' </p>
+            <p> Down - &#x2B07; or 'S' </p>
+            <p> Left - &#x2B05; or 'A' </p>
+        </div>
+        <p>Images from <a href="https://www.flaticon.com/authors/freepik" target="_blank" title="Freepik">Freepik</a></p>
+    </div>
 </body>
