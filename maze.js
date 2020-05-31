@@ -7,16 +7,13 @@ var grid = [];
 var current;
 var stack = [];
 
-//movement
-var sourceX = 0;
-var sourceY = 0;
-
+var initCell;
+var imgBunny;
 
 function setup() {
     let maze = document.getElementById('maze');
     cols = Math.floor(width / w)
     rows = Math.floor(height / w)
-
 
     for (let j = 0; j < cols; j++) {
         for (let i = 0; i < rows; i++) {
@@ -26,18 +23,18 @@ function setup() {
     }
 
     current = grid[0];
-
+    initCell = grid[0];
 }
 
 function draw() {
 
     if (maze.getContext) {
         ctx = maze.getContext('2d');
-        ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
-        //ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, width, height);
-        setup();
+        
 
+        setup();
 
         current.visited = true;
 
@@ -55,7 +52,6 @@ function draw() {
                 //step 1
                 next.visited = true;
                 removeWalls(current, next);
-
                 //step 2
                 stack.push(current);
                 //step 4
@@ -66,8 +62,8 @@ function draw() {
             grid[i].show();
         }
 
-        drawBall(sourceX,sourceY);
-
+        drawFood();
+        drawBall(0, 0);
     } else {
         // canvas-unsupported code here
         alert(`Browser doesn't support canvas!`)
@@ -87,7 +83,7 @@ function Cell(i, j) {
     this.show = function() {
         var x = this.i * w;
         var y = this.j * w;
-        console.trace()
+
         ctx.beginPath();
         //top
         if (this.walls[0]) {
@@ -110,7 +106,8 @@ function Cell(i, j) {
             ctx.lineTo(x, y);
         }
 
-        ctx.strokeStyle = "#fff";
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.closePath();
         //draw small rectangles
@@ -119,8 +116,6 @@ function Cell(i, j) {
             ctx.fill();
         }
     }
-
-
 
     this.checkNeighbours = function() {
         var neighbours = [];
@@ -150,10 +145,7 @@ function Cell(i, j) {
             return undefined;
         }
 
-        console.log({ neighbours })
     }
-
-
 }
 
 function removeWalls(a, b) {
@@ -175,78 +167,91 @@ function removeWalls(a, b) {
     }
 }
 
-function drawBall(x,y) {
-    ctx.beginPath();
-    ctx.arc(x+w / 2, y+w / 2, 10, 0, Math.PI * 2);
-    ctx.fillStyle = "#fff";
-    ctx.fill();
-    ctx.closePath();
+function drawBall(x, y) {
+    imgBunny = new Image();
+    imgBunny.src = './bunny.jpg';
+    imgBunny.onload = function() {
+        // ctx.drawImage(imgBunny, x + w / 4, y + w / 4, w / 2, w / 2);
+        ctx.drawImage(imgBunny, x, y, w - 1, w - 1);
+    }
+}
+
+function drawFood() {
+    let img = new Image();
+    img.src = './food.jpg';
+    img.onload = function() {
+        ctx.drawImage(img, (cols - 1) * w, (rows - 1) * w, w, w);
+    }
 }
 
 function eraseBall(x, y) {
-     ctx.beginPath();
-    ctx.arc(x+w / 2, y+w / 2, 10, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
-    ctx.fill();
-    ctx.closePath();
-
+    ctx.clearRect(x + w / 4, y + w / 4, w / 2, w / 2);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(x, y, w - 1, w - 1);
 }
 
 function moveSource(e) {
-
-    var nextX;
-    var nextY;
+    var nextCell;
     var canMove;
+    let dir;
     e = e || window.event;
-//instead of source use grid[] ; next grid -> top, rt, btm, left ; canMove -> check neightbour wall
-    debugger;
+
     switch (e.keyCode) {
         case 38: // arrow up key
         case 87: // W key
-            nextX = sourceX;
-            nextY = sourceY - w;
-            break;
-        case 37: // arrow left key
-        case 65: // A key
-            nextX = sourceX - w;
-            nextY = sourceY;
-            break;
-        case 40: // arrow down key
-        case 83: // S key
-            nextX = sourceX;
-            nextY = sourceY + w;
+            nextCell = grid[getIndex(initCell.i, initCell.j - 1)]; //top
+            dir = 'top';
             break;
         case 39: // arrow right key
         case 68: // D key
-            nextX = sourceX + w;
-            nextY = sourceY;
+            nextCell = grid[getIndex(initCell.i + 1, initCell.j)]; //right
+            dir = 'right';
+            break;
+        case 40: // arrow down key
+        case 83: // S key
+            nextCell = grid[getIndex(initCell.i, initCell.j + 1)]; //bottom
+            dir = 'bottom';
+            break;
+        case 37: // arrow left key
+        case 65: // A key
+            nextCell = grid[getIndex(initCell.i - 1, initCell.j)]; //left
+            dir = 'left';
             break;
         default:
             return;
 
     }
-//movingAllowed = canMoveTo(nextX, nextY);
-movingAllowed = 1;
-    if (movingAllowed === 1) {      // 1 means 'the rectangle can move'
-        drawBall(nextX, nextY);
+    movingAllowed = canMoveTo(nextCell, initCell, dir);
+    if (movingAllowed === 1) { // 1 means 'the rectangle can move'
+        drawBall(nextCell.i * w, nextCell.j * w);
+        eraseBall(initCell.i * w, initCell.j * w);
+        initCell = nextCell;
+    } else if (movingAllowed === 2) { // 2 means 'the rectangle reached the end point'
 
-eraseBall(sourceX,sourceY)
-        sourceX = nextX;
-        sourceY = nextY;
-    }
-    else if (movingAllowed === 2) { // 2 means 'the rectangle reached the end point'
-       // clearInterval(intervalVar); // we'll set the timer later in this article
-      //  makeWhite(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, width, height);
-        ctx.font = "40px Arial";
-        ctx.fillStyle = "blue";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("Congratulations!", width / 2, height / 2);
-        window.removeEventListener("keydown", moveRect, true);
-    }
+        let img = new Image();
+        img.src = './congrats.jpg';
+        img.onload = function() {
+            ctx.drawImage(img, 0, 0, width, height);
+        }
 
+        window.removeEventListener("keydown", moveSource, true);
+    }
+}
+
+function canMoveTo(destCell, initCell, dir) {
+    let canMove = 0;
+    let wallNext = destCell.walls;
+    let wallCurrent = initCell.walls;
+
+    if (destCell.i === rows - 1 && destCell.j === cols - 1) {
+        canMove = 2;
+    } else if ((!wallNext[2] && !wallCurrent[0] && dir === 'top') || //top
+        (!wallNext[3] && !wallCurrent[1] && dir === 'right') || //right
+        (!wallNext[0] && !wallCurrent[2] && dir === 'bottom') || //bottom
+        (!wallNext[1] && !wallCurrent[3] && dir === 'left')) { //left
+        canMove = 1;
+    }
+    return canMove;
 }
 
 
